@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Countdown Timer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            /* Makes the text thicker */
+            color: #171c78;
+            text-align: center;
+            background: transparent;
+        }
+
+        #timer {
+            background-color: lightblue;
+            /* Light blue background */
+            padding: 5px;
+            /* Adds some spacing around the text */
+            border-radius: 15px;
+            /* Soft rounded corners */
+            display: inline-block;
+            /* Ensures the background wraps around the text */
+            font-weight: 900;
+            /* Extra thick font weight */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="timer">Loading...</div>
+
+    <script>
+        // 🔹 Dev Mode (Set to true for testing, false for live)
+        const devMode = false;
+
+
+        let token = "your token here"
+        // let startTime = new Date().getTime(); // Set initial countdown time
+        // Create a Date object for March 7, 2025, at 7:00 PM Eastern Time
+        let startTime = new Date("2025-03-07T19:00:00-05:00").getTime();
+        let targetMiddle = startTime + (12 * 60 * 60 * 1000); // Add 12 hours
+        let targetComplete = startTime + (24 * 60 * 60 * 1000); // Add 24 hours
+
+        // Current session subs
+        let subCount = 153;
+
+        // Subs needed to reveal the timer
+        const subGoalMiddle = 60;
+        const subGoalComplete = 100;
+
+        //sub goal dev
+        // const subGoalMiddle = 3; 
+        // const subGoalComplete = 6;
+
+        let isTimerVisible = devMode;
+        let isCountingToComplete = false;
+
+        // Function to update the countdown timer display
+        function updateTimer() {
+            const now = new Date().getTime();
+            let timeLeft = isCountingToComplete ? targetComplete - now : targetMiddle - now;
+
+            if (timeLeft <= 0) {
+                document.getElementById("timer").innerHTML = "TIME OVER!";
+                return;
+            }
+
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            if (isTimerVisible) {
+                document.getElementById("timer").style.display = "block"; // Make it visible
+                document.getElementById("timer").innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                document.getElementById("timer").style.display = "none"; // Keep it hidden
+            }
+        }
+
+        function connectWebSocket() {
+            socket = new WebSocket('wss://astro.streamelements.com');
+
+            socket.onopen = () => {
+                console.log('✅ Connected to StreamElements Astro WebSocket');
+
+                // Generate a unique nonce for request tracking
+                const nonce = crypto.randomUUID();
+
+                // Authenticate and subscribe to channel events
+                const request = {
+                    type: "subscribe",
+                    nonce: nonce,
+                    data: {
+                        topic: "channel.activities",
+                        token: token,
+                        token_type: "jwt"
+                    }
+                };
+
+                socket.send(JSON.stringify(request));
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const response = JSON.parse(event.data);
+
+                    // Confirm subscription response
+                    if (response.type === "response") {
+                        if (response.error) {
+                            console.error(`🚨 Error: ${response.error}`);
+                        } else {
+                            console.log(`✅ Successfully subscribed to ${response.data.topic}`);
+                        }
+                    }
+
+                    // Handle new subscriber events
+                    if (response.type === "message" && response.topic === "channel.activities") {
+                        const eventData = response.data;
+
+                        if (eventData.type === "subscriber") {
+                            let addedSubs = eventData.data.amount || 1; // Default to 1 if amount is missing
+                            subCount += addedSubs;
+                            console.log(`🎉 New subscription! +${addedSubs} sub(s) | Total subs: ${subCount}`);
+
+                            // Show timer when subGoalMiddle is reached (unless devMode is enabled)
+                            if (!isTimerVisible && subCount >= subGoalMiddle) {
+                                isTimerVisible = true;
+                                console.log("🎯 Sub Goal Middle reached! Timer is now visible.");
+                            }
+
+                            // Switch timer to targetComplete when subGoalComplete is reached
+                            if (!isCountingToComplete && subCount >= subGoalComplete) {
+                                isCountingToComplete = true;
+                                console.log("🎯 Sub Goal Complete reached! Timer now counts to targetComplete.");
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("❌ Error processing WebSocket message:", error);
+                }
+            };
+
+            socket.onerror = (error) => {
+                console.error(`❌ WebSocket Error:`, error);
+            };
+
+            socket.onclose = (event) => {
+                console.log(`⚠️ Disconnected from StreamElements WebSocket. Reason: ${event.reason}`);
+                console.log("🔄 Reconnecting in 5 seconds...");
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        // Start the WebSocket connection
+        connectWebSocket();
+        // Update countdown every second
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+
+</html>

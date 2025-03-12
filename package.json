@@ -1,0 +1,24 @@
+{
+  "name": "obs-streamwidgets",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/DougSilvera/OBS-StreamWidgets#readme",
+  "bugs": {
+    "url": "https://github.com/DougSilvera/OBS-StreamWidgets/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DougSilvera/OBS-StreamWidgets.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

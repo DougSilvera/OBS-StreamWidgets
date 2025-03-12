@@ -38,10 +38,22 @@
     <script>
         // 🔹 Configurable Variables
         let token = "your token here"        
-        const subGoal = 125; // Adjust the sub goal here
-        let subCount = 153; // Tracks subs for the session
+        const subGoal = 5; // Adjust the sub goal here
+        let subCount = 0; // Tracks subs for the session
 
         let socket;
+
+        async function loadSettings() {
+            try {
+                const res = await fetch("/api/settings");
+                const data = await res.json();
+                subGoal = data.subGoal || 5; // Default to 100 if not set
+                subCount = data.subCount || 0; // Default to 0 if not set
+                updateSubCounter();
+            } catch (error) {
+                console.error("❌ Failed to load settings:", error);
+            }
+        }
 
         function updateSubCounter() {
             document.getElementById("subCounter").innerHTML = `Sub Goal: ${subCount}/${subGoal}`;
@@ -110,7 +122,8 @@
             };
         }
 
-        // Start the WebSocket connection
+        // Load settings and start WebSocket connection
+        loadSettings();
         connectWebSocket();
 
         // Update display

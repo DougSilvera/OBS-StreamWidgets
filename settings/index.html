@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Widget Settings</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, button { padding: 10px; margin: 5px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>OBS Widget Settings</h1>
+    <label>Sub Goal: <input type="number" id="subGoal" /></label><br>
+    <button onclick="saveSettings()">Save Settings</button>
+
+    <script>
+        async function loadSettings() {
+            const res = await fetch("/api/settings");
+            const data = await res.json();
+            document.getElementById("subGoal").value = data.subGoal;
+        }
+
+        async function saveSettings() {
+            const subGoal = document.getElementById("subGoal").value;
+            await fetch("/api/settings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subGoal })
+            });
+            alert("Settings Saved!");
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

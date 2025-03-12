@@ -37,7 +37,7 @@
 
     <script>
         // 🔹 Dev Mode (Set to true for testing, false for live)
-        const devMode = false;
+        let devMode = false;
 
 
         let token = "your token here"
@@ -48,7 +48,7 @@
         let targetComplete = startTime + (24 * 60 * 60 * 1000); // Add 24 hours
 
         // Current session subs
-        let subCount = 153;
+        let subCount = 0;
 
         // Subs needed to reveal the timer
         const subGoalMiddle = 60;
@@ -60,6 +60,24 @@
 
         let isTimerVisible = devMode;
         let isCountingToComplete = false;
+
+          // Fetch user-defined settings from API
+          async function loadSettings() {
+            try {
+                const res = await fetch("/api/settings");
+                const data = await res.json();
+                
+                startTime = new Date(data.startTime || "2025-03-07T19:00:00-05:00").getTime();
+                subCount = data.subCount || 0;
+                subGoalMiddle = data.subGoalMiddle || 60;
+                subGoalComplete = data.subGoalComplete || 100;
+                devMode = data.devMode || devMode
+
+                updateTimer();
+            } catch (error) {
+                console.error("❌ Failed to load settings:", error);
+            }
+        }
 
         // Function to update the countdown timer display
         function updateTimer() {

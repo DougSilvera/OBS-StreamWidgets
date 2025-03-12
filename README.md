@@ -52,17 +52,6 @@ The **Settings UI** is a **web-based control panel** for modifying widget settin
 - **Widgets automatically update when settings are modified.**
 ---
 
-## 🔗 **API Endpoints**
-Each widget dynamically retrieves its settings via a local API:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET`  | `/api/settings` | Fetches current widget settings |
-| `POST` | `/api/settings` | Updates widget settings |
-| `GET`  | `/api/config` | Returns configurable variables for all widgets |
-
----
-
 ## 🔥 **Credits**
 Built by **Douglas Silvera** using **Node.js, Express**.  
 Special thanks to **OBS Studio & StreamElements**.

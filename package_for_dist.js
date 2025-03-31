@@ -25,7 +25,7 @@ fse.copySync("settings", path.join(distDir, "settings"));
 fse.copySync("start_server.bat", path.join(distDir, "start_server.bat"));
 fse.copySync("start_server_silent.bat", path.join(distDir, "start_server_silent.bat"));
 fse.copySync("launch_silent.vbs", path.join(distDir, "launch_silent.vbs"));
-fse.copySync("OBS-Launcher.lua", path.join(distDir, "launch_server.lua"));
+fse.copySync("launch_server.lua", path.join(distDir, "launch_server.lua"));
 fse.copySync(exeName, path.join(distDir, exeName));
 fse.copySync("README.md", path.join(distDir, "README.md"));
 

@@ -48,7 +48,7 @@ A subathon-style countdown timer that starts at a fixed time and **extends with 
 1. **Extract `OBS-Widget-Pack.zip`** anywhere on your computer.
 2. Inside, you’ll find:
    - `widget-server.exe` (or run via `start_server.bat`)
-   - `OBS-Launcher.lua` (used by OBS)
+   - `launch_server.lua` (used by OBS)
    - `settings/`, `widgets/`, and helper scripts (`.bat`, `.vbs`)
 3. **Do not move files separately** — they are self-contained.
 

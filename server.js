@@ -8,6 +8,32 @@ app.use(express.static("widgets"));
 app.use("/assets", express.static("public"));
 app.use("/settings", express.static("settings"));
 
+const settingsPath = "settings/settings.json";
+const defaultSettings = {
+    subGoal: 100,
+    subCount: 0,
+    subGoalMiddle: 60,
+    subGoalComplete: 100,
+    startTime: new Date().toISOString()
+};
+
+// ✅ Reset subCount to 0 ONLY on server startup
+if (fs.existsSync(settingsPath)) {
+    try {
+        const current = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+        current.subCount = 0; // 🔄 Reset only this value
+        fs.writeFileSync(settingsPath, JSON.stringify(current, null, 2));
+        console.log("🔁 subCount reset to 0 on startup");
+    } catch (err) {
+        console.error("❌ Failed to read/parse settings.json on startup:", err);
+        fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 2));
+    }
+} else {
+    // If file doesn't exist, create it
+    fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 2));
+    console.log("📦 Created default settings.json");
+}
+
 // API to get settings
 app.get("/api/settings", (req, res) => {
     fs.readFile("settings/settings.json", "utf8", (err, data) => {

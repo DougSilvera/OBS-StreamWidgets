@@ -1,37 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OBS Widget Settings</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        input, button { padding: 10px; margin: 5px; font-size: 18px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 18px;
+        }
     </style>
 </head>
+
 <body>
     <h1>OBS Widget Settings</h1>
+    <h2>Sub Counter</h2>
     <label>Sub Goal: <input type="number" id="subGoal" /></label><br>
-    <button onclick="saveSettings()">Save Settings</button>
+    <label>Sub Count Override: <input type="number" id="subCount" /></label><br>
+    <button onclick="adjustCount(1)">Increase Count</button>
+    <button onclick="adjustCount(-1)">Decrease Count</button>
+
+    <h2>Global Settings</h2>
+    <label>StreamElements JWT: <input type="password" id="jwtToken" style="width: 400px;" /></label><br>
+    <button onclick="saveSettings(true)">Save Settings</button>
 
     <script>
+        let settings = {};
+
         async function loadSettings() {
             const res = await fetch("/api/settings");
             const data = await res.json();
-            document.getElementById("subGoal").value = data.subGoal;
+            settings = data;
+
+            document.getElementById("subGoal").value = settings.subGoal;
+            document.getElementById("subCount").value = settings.subCount;
+            document.getElementById("jwtToken").value = settings.jwtToken || "";
         }
 
-        async function saveSettings() {
-            const subGoal = document.getElementById("subGoal").value;
+        function updateInputsIfChanged(data) {
+            if (
+                document.getElementById("subGoal").value != data.subGoal ||
+                document.getElementById("subCount").value != data.subCount ||
+                document.getElementById("jwtToken").value != data.jwtToken
+            ) {
+                document.getElementById("subGoal").value = data.subGoal;
+                document.getElementById("subCount").value = data.subCount;
+                document.getElementById("jwtToken").value = data.jwtToken || "";
+            }
+        }
+
+        async function pollSettings() {
+            try {
+                const res = await fetch("/api/settings");
+                const data = await res.json();
+                updateInputsIfChanged(data);
+            } catch (err) {
+                console.warn("⚠️ Polling failed:", err);
+            }
+        }
+
+        async function saveSettings(showAlert) {
+            settings.subGoal = parseInt(document.getElementById("subGoal").value);
+            settings.subCount = parseInt(document.getElementById("subCount").value);
+            settings.jwtToken = document.getElementById("jwtToken").value.trim();
+
             await fetch("/api/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ subGoal })
+                body: JSON.stringify(settings)
             });
-            alert("Settings Saved!");
+
+            if (showAlert == true) {
+                alert("Settings Saved!");
+            }
+
+        }
+
+        async function adjustCount(amount) {
+            const current = parseInt(document.getElementById("subCount").value) || 0;
+            const newValue = current + amount;
+            document.getElementById("subCount").value = newValue;
+            await saveSettings(false);
         }
 
         loadSettings();
     </script>
 </body>
+
 </html>

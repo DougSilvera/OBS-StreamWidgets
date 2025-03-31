@@ -36,10 +36,9 @@
     <div id="subCounter">Sub Goal:</div>
 
     <script>
-        // 🔹 Configurable Variables
-        let token = "your token here"        
-        const subGoal = 5; // Adjust the sub goal here
-        let subCount = 0; // Tracks subs for the session
+        let token = "your token here"
+        let subGoal = 5;
+        let subCount = 0;
 
         let socket;
 
@@ -47,8 +46,9 @@
             try {
                 const res = await fetch("/api/settings");
                 const data = await res.json();
-                subGoal = data.subGoal || 5; // Default to 100 if not set
-                subCount = data.subCount || 0; // Default to 0 if not set
+                subGoal = typeof data.subGoal === "number" ? data.subGoal : 5;
+                subCount = typeof data.subCount === "number" ? data.subCount : 0;
+                token = data.jwtToken ? data.jwtToken : "";
                 updateSubCounter();
             } catch (error) {
                 console.error("❌ Failed to load settings:", error);
@@ -57,6 +57,22 @@
 
         function updateSubCounter() {
             document.getElementById("subCounter").innerHTML = `Sub Goal: ${subCount}/${subGoal}`;
+        }
+
+        async function persistSubCount() {
+            try {
+                await fetch("/api/settings", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        subGoal,
+                        subCount
+                    })
+                });
+                console.log("✅ Persisted sub count to settings.json");
+            } catch (err) {
+                console.error("❌ Failed to persist sub count", err);
+            }
         }
 
         function connectWebSocket() {
@@ -104,6 +120,7 @@
                             subCount += addedSubs;
                             console.log(`🎉 New subscription! +${addedSubs} sub(s) | Total subs: ${subCount}`);
 
+                            persistSubCount();
                             updateSubCounter();
                         }
                     }
@@ -125,6 +142,23 @@
         // Load settings and start WebSocket connection
         loadSettings();
         connectWebSocket();
+        async function pollSettings() {
+            try {
+                const res = await fetch("/api/settings");
+                const data = await res.json();
+
+                if (data.subGoal !== subGoal || data.subCount !== subCount) {
+                    subGoal = data.subGoal;
+                    subCount = data.subCount;
+                    updateSubCounter();
+                }
+            } catch (err) {
+                console.warn("Settings poll failed", err);
+            }
+        }
+
+        // Poll every 5 seconds
+        setInterval(pollSettings, 5000);
 
         // Update display
         updateSubCounter();

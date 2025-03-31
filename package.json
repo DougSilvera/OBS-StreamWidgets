@@ -1,7 +1,7 @@
 {
   "name": "obs-streamwidgets",
   "version": "1.0.0",
-  "description": "",
+  "description": "A widget server for OBS that displays live sub counters, timers, and custom elements.",
   "homepage": "https://github.com/DougSilvera/OBS-StreamWidgets#readme",
   "bugs": {
     "url": "https://github.com/DougSilvera/OBS-StreamWidgets/issues"
@@ -11,14 +11,27 @@
     "url": "git+https://github.com/DougSilvera/OBS-StreamWidgets.git"
   },
   "license": "MIT",
-  "author": "",
+  "author": "Doug Silvera",
   "type": "commonjs",
-  "main": "index.html",
+  "main": "server.js",
+  "bin": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "del widget-server.exe && pkg . --targets node18-win-x64 --output widget-server.exe",
+    "package": "node package_for_dist.js"
   },
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "pkg": {
+    "assets": [
+      "widgets/**/*",
+      "public/**/*",
+      "settings/**/*"
+    ]
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "fs-extra": "^11.3.0"
   }
 }

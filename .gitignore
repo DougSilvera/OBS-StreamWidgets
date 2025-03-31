@@ -8,6 +8,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 launch_log.txt
+*.exe
 
 # 🔹 Ignore system files
 .DS_Store

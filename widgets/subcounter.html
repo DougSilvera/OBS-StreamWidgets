@@ -152,6 +152,12 @@
                     subCount = data.subCount;
                     updateSubCounter();
                 }
+                if (data.jwtToken !== token)
+                {
+                    //update the token value and reconnect the websocket
+                    token = data.jwtToken;
+                    connectWebSocket();
+                }
             } catch (err) {
                 console.warn("Settings poll failed", err);
             }

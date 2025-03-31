@@ -44,7 +44,7 @@ A subathon-style countdown timer that starts at a fixed time and **extends with 
 
 ## 🛠️ Setup & Installation
 
-### ✅ Unpacking the Project
+### ✅ Unpacking the compiled distributed Project
 1. **Extract `OBS-Widget-Pack.zip`** anywhere on your computer.
 2. Inside, you’ll find:
    - `widget-server.exe` (or run via `start_server.bat`)

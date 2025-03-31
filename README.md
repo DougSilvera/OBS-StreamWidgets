@@ -59,7 +59,7 @@ A subathon-style countdown timer that starts at a fixed time and **extends with 
 #### Step-by-step:
 
 1. In OBS, go to `Tools > Scripts`.
-2. Click **+** and select `OBS-Launcher.lua` from the extracted folder.
+2. Click **+** and select `launch_server.lua` from the extracted folder.
 3. In the right panel, choose:
    - ✅ **Show Terminal Window** (for debugging) — shows output on startup
    - ❌ Uncheck for silent/background mode

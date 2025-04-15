@@ -17,13 +17,19 @@ const defaultSettings = {
     startTime: new Date().toISOString()
 };
 
-// ✅ Reset subCount to 0 ONLY on server startup
+// ✅ Reset subCount to 0 ONLY — keep other values like JWT untouched
 if (fs.existsSync(settingsPath)) {
     try {
         const current = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-        current.subCount = 0; // 🔄 Reset only this value
-        fs.writeFileSync(settingsPath, JSON.stringify(current, null, 2));
-        console.log("🔁 subCount reset to 0 on startup");
+
+        if (typeof current.subCount !== "undefined") {
+            current.subCount = 0;
+
+            fs.writeFileSync(settingsPath, JSON.stringify(current, null, 2));
+            console.log("🔁 subCount reset to 0 on startup");
+        } else {
+            console.log("⚠️ subCount missing from settings. No reset applied.");
+        }
     } catch (err) {
         console.error("❌ Failed to read/parse settings.json on startup:", err);
         fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 2));

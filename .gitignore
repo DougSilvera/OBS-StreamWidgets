@@ -9,7 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 launch_log.txt
 dist*
-.zip*
+*.zip
 *.exe
 
 # 🔹 Ignore system files
